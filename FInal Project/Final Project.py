@@ -17,6 +17,7 @@ class MeetingScheduler:
         self.students = {}
         self.professors = {}
         self.pending_meetings = {}
+        self.time_table_meetings = {}
         self.registered_users = set()
         self.load_registered_users()
 
@@ -81,18 +82,26 @@ class MeetingScheduler:
             print("Professor not found.")
             return None
 
-    def request_meeting(self, student, professor, time):
+    def request_meeting(self, student, professor, option):
         if professor.username in self.professors:
-            self.pending_meetings.setdefault(professor.username, []).append((student.username, time))
+          option = int(option) 
+          if len(self.time_table_meetings) >= option > 0:
+            self.pending_meetings.setdefault(professor.username, []).append((student.username, self.time_table_meetings[option]))
             print("Meeting request sent to professor.")
+          else:
+            print("Invalid option. Please select from the available options.")
         else:
-            print("Professor not found.")
+          print("Professor not found.")
 
     def view_timetable(self, professor):
         if isinstance(professor, Professor):
             print(f"Timetable for Professor {professor.username}:")
+            # day_object = {}
+            count_number =1
             for day, schedule in professor.timetable.items():
-                print(f"{day}: {schedule}")
+                print(f"{count_number}. {day}: {schedule}")
+                self.time_table_meetings[count_number] = {day:schedule}
+                count_number += 1
         else:
             print("Invalid professor object.")
 
@@ -161,8 +170,8 @@ while True:
                 professor_timetable = scheduler.get_professor_timetable(professor.username)
                 if professor_timetable:
                     scheduler.view_timetable(professor)
-                time = input("Enter the time for the meeting: ")
-                scheduler.request_meeting(user, professor, time)
+                option = input("Enter the option for the meeting: ")
+                scheduler.request_meeting(user, professor, option)
         elif user.role == "professor":
             while True:
                 print("1. View Meeting Requests")
